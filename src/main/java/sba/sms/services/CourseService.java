@@ -47,33 +47,4 @@ public class CourseService implements CourseI {
         }
         return course;
     }
-
-    @Override
-    public void updateCourse(Course course) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.merge(course);
-            transaction.commit();
-        } catch (HibernateException e) {
-            if (transaction != null) transaction.rollback();
-            e.printStackTrace();
-        }
     }
-
-    @Override
-    public void deleteCourse(int id) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Course course = session.get(Course.class, id);
-            if (course != null) {
-                session.remove(course);
-            }
-            transaction.commit();
-        } catch (HibernateException e) {
-            if (transaction != null) transaction.rollback();
-            e.printStackTrace();
-        }
-    }
-}

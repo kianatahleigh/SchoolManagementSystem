@@ -12,7 +12,4 @@ public interface CourseI {
 
     List<Course> getAllCourses();
 
-    void updateCourse(Course course);
-
-    void deleteCourse(int id);
 }
