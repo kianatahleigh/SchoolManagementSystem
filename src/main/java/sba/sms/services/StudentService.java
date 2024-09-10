@@ -63,6 +63,9 @@ public class StudentService implements StudentI {
             query.setParameter("password", password);
             Student student = query.uniqueResult();
             isValid = (student != null);
+            if (!isValid) {
+                System.out.println("Wrong credentials");
+            }
         } catch (HibernateException e) {
             log.severe("Failed to validate student: " + e.getMessage());
         }
@@ -74,12 +77,22 @@ public class StudentService implements StudentI {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
+
             Student student = session.get(Student.class, email);
             Course course = session.get(Course.class, courseId);
+
             if (student != null && course != null) {
-                student.getCourses().add(course);
-                session.merge(student);
+                boolean alreadyRegistered = student.getCourses().stream()
+                        .anyMatch(c -> c.getId() == courseId);
+                if (!alreadyRegistered) {
+                    student.getCourses().add(course);
+                    session.merge(student);
+                    System.out.printf("Successfully registered %s to %s%n", student.getName(), course.getName());
+                } else {
+                    System.out.printf("Student %s is already registered to the course %s%n", student.getName(), course.getName());
+                }
             }
+
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) transaction.rollback();
